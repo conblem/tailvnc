@@ -97,8 +97,7 @@ export function VNC() {
             let wrapper = await WebSocketWrapper.connect(ipnState.ipn);
             Log.initLogging('debug');
             const rfb = new RFB(div.current, wrapper, { credentials: { password: "Wo(Z74(.QF5jZHhtH<s,"}});
-
-            console.log("rfb", rfb);
+            rfb.scaleViewport = true;
         })();
     }, [ipnState])
     return <div className={styles.vnc} ref={div}></div>
