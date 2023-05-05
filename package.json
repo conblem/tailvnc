@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@novnc/novnc": "^1.4.0",
     "@types/node": "18.15.3",
     "@types/react": "18.0.28",
     "@types/react-dom": "18.0.11",
@@ -17,6 +18,10 @@
     "next": "13.2.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "tsconnect": "file:./tailscale/cmd/tsconnect",
     "typescript": "5.0.2"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^11.0.0"
   }
 }

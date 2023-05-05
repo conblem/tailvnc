@@ -1,0 +1,4 @@
+[submodule "tailscale"]
+	path = tailscale
+	url = https://github.com/conblem/tailscale.git
+	branch = working
