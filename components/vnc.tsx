@@ -84,8 +84,9 @@ function useIPN(): State {
 
     return state;
 }
+const DEFAULT_VNC_PORT = 5900;
 
-export function VNC() {
+export function VNC({host, port}: {host: string, port?: number}) {
     const ipnState = useIPN();
     const div = useRef(null);
     useEffect(() => {
@@ -94,7 +95,7 @@ export function VNC() {
             return;
         }
         (async () => {
-            let wrapper = await WebSocketWrapper.connect(ipnState.ipn);
+            let wrapper = await WebSocketWrapper.connect(ipnState.ipn, host, port || DEFAULT_VNC_PORT);
             Log.initLogging('debug');
             const rfb = new RFB(div.current, wrapper, { credentials: { password: "Wo(Z74(.QF5jZHhtH<s,"}});
             rfb.scaleViewport = true;
@@ -104,11 +105,11 @@ export function VNC() {
 }
 
 class WebSocketWrapper {
-    static async connect(ipn: IPN): Promise<WebSocketWrapper> {
-        let onmessage = (data: Uint8Array) => {};
+    static async connect(ipn: IPN, host: string, port: number): Promise<WebSocketWrapper> {
+        let onmessage = (_: Uint8Array) => {};
 
         // we connect first
-        const tcp = await ipn.tcp("100.72.98.51", 5900, (data: Uint8Array) => onmessage(data));
+        const tcp = await ipn.tcp(host, port, (data: Uint8Array) => onmessage(data));
 
         const wrapper = new WebSocketWrapper(tcp);
         // then reassign the onmessage handler
