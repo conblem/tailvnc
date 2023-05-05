@@ -158,7 +158,7 @@ class TailscaleRawChannel {
 
         const wrapper = new TailscaleRawChannel(tcp);
         // then reassign the onmessage handler
-        // this is okay because vnc is a client speak first protocol
+        // this is okay because vnc is a client first protocol
         onmessage = (data: Uint8Array) => wrapper.onmessage({ data });
 
         return wrapper;
