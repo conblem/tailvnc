@@ -15,3 +15,7 @@ pnpm dev
 get submodules
 run ./tool/go run ./cmd/tsconnect build-pkg
 run npm run dev
+
+
+even tho the merge requests uses a different branch
+the working branch is the tcp functionality backported to tailscale 1.41
