@@ -18,7 +18,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-          <VNC host='100.72.98.51' />
+          <VNC host='100.72.98.51' password='Wo(Z74(.QF5jZHhtH<s,' />
       </main>
     </>
   )

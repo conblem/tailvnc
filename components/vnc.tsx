@@ -1,5 +1,5 @@
 import {createIPN} from "tsconnect/pkg";
-import {useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 // @ts-ignore
 import * as Log from "@novnc/novnc/core/util/logging";
 // @ts-ignore
@@ -24,6 +24,12 @@ interface RunningState {
     ipn: IPN
 }
 
+interface RunningWithNetMap {
+    state: "runningWithNetMap";
+    ipn: IPN;
+    netMap: string;
+}
+
 interface WaitingForLogin {
     state: "waitingForLogin";
     url: string
@@ -34,7 +40,7 @@ interface Error {
     error: string;
 }
 
-type State = Starting | WaitingForLogin | RunningState | Error;
+type State = Starting | WaitingForLogin | RunningState | RunningWithNetMap | Error;
 
 let didIPNInit = false;
 
@@ -48,6 +54,8 @@ function useIPN(): State {
 
         didIPNInit = true;
         (async () => {
+
+            // authKey should probably be optional
             // @ts-ignore
             const emptyAuthKey: string = undefined as string;
             const ipn = await createIPN({
@@ -57,7 +65,13 @@ function useIPN(): State {
                 panicHandler: (error: string) => setState({ state: "error", error }),
             });
             ipn.run({
-                notifyNetMap: (netMap: string) => console.log("netmap", netMap),
+                notifyNetMap: (netMap: string) => {
+                    if(state.state !== "running") {
+                        console.log("invalid state to set netmap")
+                        return;
+                    };
+                    setState({ state: "runningWithNetMap", ipn: state.ipn, netMap });
+                },
                 notifyPanicRecover: (error: string) => setState({ state: "error", error }),
                 notifyState: (ipnState: IPNState) => {
                     setIpnState(ipnState)
@@ -86,32 +100,63 @@ function useIPN(): State {
 }
 const DEFAULT_VNC_PORT = 5900;
 
-export function VNC({host, port}: {host: string, port?: number}) {
-    const ipnState = useIPN();
-    const div = useRef(null);
+function useRFB(host: string, port: number, password: string, ipn?: IPN, div?: HTMLDivElement) {
     useEffect(() => {
-        if(ipnState.state !== "running") {
+        if(ipn === undefined || div === undefined) {
+            return
+        }
+
+        let rawChannel: TailscaleRawChannel | undefined;
+        let rfb: RFB | undefined;
+        (async () => {
+            rawChannel = await TailscaleRawChannel.connect(ipn, host, port || DEFAULT_VNC_PORT);
+            Log.initLogging('debug');
+            rfb = new RFB(div, rawChannel, { credentials: { password }});
+            rfb.scaleViewport = true;
+        })();
+        
+        return () => {
+            if(rfb != undefined) {
+                rfb.disconnect();
+                return;
+            }
+            rawChannel?.close();
+        }
+    }, [host, port, password, ipn, div])
+}
+
+export function VNC({host, port, password}: {host: string, port?: number, password: string}) {
+    const ipnState = useIPN();
+    const [ipn, setIPN] = useState<IPN>();
+
+    const [div, setDiv] = useState<HTMLDivElement>();
+    const ref = useCallback((node: HTMLDivElement) => setDiv(node), []);
+
+    // only update ipn if it changes
+    useEffect(() => {
+        if(!(ipnState.state == "running" || ipnState.state == "runningWithNetMap")) {
             console.log(ipnState);
             return;
         }
-        (async () => {
-            let wrapper = await WebSocketWrapper.connect(ipnState.ipn, host, port || DEFAULT_VNC_PORT);
-            Log.initLogging('debug');
-            const rfb = new RFB(div.current, wrapper, { credentials: { password: "Wo(Z74(.QF5jZHhtH<s,"}});
-            rfb.scaleViewport = true;
-        })();
-    }, [ipnState])
-    return <div className={styles.vnc} ref={div}></div>
+        if(ipnState.ipn === ipn) {
+            return
+        }
+        setIPN(ipnState.ipn);
+    }, [ipnState, ipn]);
+
+    useRFB(host, port || DEFAULT_VNC_PORT, password, ipn, div)
+
+    return <div className={styles.vnc} ref={ref}></div>
 }
 
-class WebSocketWrapper {
-    static async connect(ipn: IPN, host: string, port: number): Promise<WebSocketWrapper> {
+class TailscaleRawChannel {
+    static async connect(ipn: IPN, host: string, port: number): Promise<TailscaleRawChannel> {
         let onmessage = (_: Uint8Array) => {};
 
         // we connect first
         const tcp = await ipn.tcp(host, port, (data: Uint8Array) => onmessage(data));
 
-        const wrapper = new WebSocketWrapper(tcp);
+        const wrapper = new TailscaleRawChannel(tcp);
         // then reassign the onmessage handler
         // this is okay because vnc is a client speak first protocol
         onmessage = (data: Uint8Array) => wrapper.onmessage({ data });
