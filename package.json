@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "act": "docker build -t conblem/act . && act --secret-file .env -P ubuntu-18.04=conblem/act"
   },
   "dependencies": {
     "@novnc/novnc": "^1.4.0",
