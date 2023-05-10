@@ -18,10 +18,12 @@
     "next": "13.2.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "styled-components": "^5.3.10",
     "tsconnect": "file:./tailscale/cmd/tsconnect",
     "typescript": "5.0.2"
   },
   "devDependencies": {
+    "@types/styled-components": "^5.1.26",
     "copy-webpack-plugin": "^11.0.0"
   }
 }

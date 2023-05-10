@@ -46,8 +46,8 @@ let didIPNInit = false;
 
 function useIPN(): State {
     const [state, setState] = useState<State>({state: "starting"});
-    const [ipnState, setIpnState] = useState<IPNState | null>(null);
-    const [ipn, setIpn] = useState<IPN | null>(null);
+    const [ipnState, setIpnState] = useState<IPNState>();
+    const [ipn, setIpn] = useState<IPN>();
 
     useEffect(() => {
         if(didIPNInit) return;
@@ -134,6 +134,11 @@ export function VNC({host, port, password}: {host: string, port?: number, passwo
 
     // only update ipn if it changes
     useEffect(() => {
+        if(ipnState.state === "waitingForLogin") {
+            console.log("login", ipnState.url)
+            window.open(ipnState.url, '_blank')?.focus();
+            return
+        }
         if(!(ipnState.state == "running" || ipnState.state == "runningWithNetMap")) {
             console.log(ipnState);
             return;
@@ -150,16 +155,21 @@ export function VNC({host, port, password}: {host: string, port?: number, passwo
 }
 
 class TailscaleRawChannel {
-    static async connect(ipn: IPN, host: string, port: number): Promise<TailscaleRawChannel> {
-        let onmessage = (_: Uint8Array) => {};
+    static async connect(ipn: IPN, hostname: string, port: number): Promise<TailscaleRawChannel> {
+        let readCallback = (_: Uint8Array) => {};
 
         // we connect first
-        const tcp = await ipn.tcp(host, port, (data: Uint8Array) => onmessage(data));
+        const tcp = await ipn.tcp({
+            hostname,
+            port,
+            readCallback: data => readCallback(data),
+            readBufferSizeInBytes: 4 * 1024 * 1024,
+        });
 
         const wrapper = new TailscaleRawChannel(tcp);
         // then reassign the onmessage handler
         // this is okay because vnc is a client first protocol
-        onmessage = (data: Uint8Array) => wrapper.onmessage({ data });
+        readCallback = (data: Uint8Array) => wrapper.onmessage({ data });
 
         return wrapper;
     }

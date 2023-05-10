@@ -5,6 +5,9 @@ const path = require('path');
 
 const nextConfig = {
   reactStrictMode: true,
+  compiler: {
+    styledComponents: true,
+  },
   webpack: (config, {isServer}) => {
     if (isServer) {
       return config
