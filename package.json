@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "@types/styled-components": "^5.1.26",
-    "copy-webpack-plugin": "^11.0.0"
+    "copy-webpack-plugin": "^11.0.0",
+    "vercel": "^29.1.1"
   }
 }
