@@ -67,7 +67,7 @@ function useIPN(): State {
             ipn.run({
                 notifyNetMap: (netMap: string) => {
                     if(state.state !== "running") {
-                        console.log("invalid state to set netmap")
+                        console.log("invalid state to set netmap oder")
                         return;
                     };
                     setState({ state: "runningWithNetMap", ipn: state.ipn, netMap });
