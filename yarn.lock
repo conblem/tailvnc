@@ -7218,8 +7218,8 @@ tsconfig-paths@^4.0.0:
     minimist "^1.2.6"
     strip-bom "^3.0.0"
 
-"tsconnect@file:./tailscale/cmd/tsconnect":
-  version "0.0.1"
+"tsconnect@file:./tailscale/cmd/tsconnect/pkg":
+  version "1.40.0-7-tccaf2bb6c"
 
 tslib@^1.8.1:
   version "1.14.1"

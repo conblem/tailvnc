@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "act": "docker build -t conblem/act . && act --secret-file .env -P ubuntu-18.04=conblem/act"
+    "act": "act --secret-file .env -P ubuntu-latest=conblem/act --container-architecture linux/amd64"
   },
   "dependencies": {
     "@novnc/novnc": "^1.4.0",
@@ -20,7 +20,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "styled-components": "^5.3.10",
-    "tsconnect": "file:./tailscale/cmd/tsconnect",
+    "tsconnect": "file:./tailscale/cmd/tsconnect/pkg",
     "typescript": "5.0.2"
   },
   "devDependencies": {
