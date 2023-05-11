@@ -10,6 +10,8 @@ on:
 jobs:
   Deploy-Preview:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - uses: actions/checkout@v3
         with:
@@ -45,3 +47,8 @@ jobs:
         run: |
           yarn -s vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} > deployment-url.txt
           echo "deployment-url=$(cat deployment-url.txt)" >> ${GITHUB_OUTPUT}
+      - name: Add deployment url to PR
+        uses: mshick/add-pr-comment@v2
+        with:
+          message: |
+            ${{ steps.vercel-deploy.outputs.deployment-url }}
