@@ -4,7 +4,7 @@ import {useCallback, useEffect, useRef, useState} from "react";
 import * as Log from "@novnc/novnc/core/util/logging";
 // @ts-ignore
 import RFB from "@novnc/novnc/core/rfb";
-//import styles from '@/styles/VNC.module.css'
+import styles from '@/styles/VNC.module.css'
 
 export const localStorage: IPNStateStorage = {
     setState(id, value) {
@@ -151,7 +151,7 @@ export function VNC({host, port, password}: {host: string, port?: number, passwo
 
     useRFB(host, port || DEFAULT_VNC_PORT, password, ipn, div)
 
-    return <div ref={ref}></div>
+    return <div className={styles.vnc} ref={ref}></div>
 }
 
 class TailscaleRawChannel {
