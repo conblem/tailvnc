@@ -19,13 +19,12 @@ jobs:
       - uses: actions/cache@v3
         id: tailscale-go-cache
         with:
-          path: /root/.cache/tailscale-go 
+          path: ~/.cache/tailscale-go 
           key: ${{ runner.os }}-tailscale-go-${{ hashFiles('tailscale/go.mod', 'tailscale/tool/yarn.rev', 'tailscale/tool/node.rev', 'tailscale/tool/binaryen.rev') }}
       - name: Build tsconnect package
         run: |
           cd tailscale
           ./tool/go run ./cmd/tsconnect build-pkg
-          sudo chown -R $(id -u):$(id -g) /root/.cache/tailscale-go 
       - name: Get yarn cache directory
         id: yarn-cache-dir
         shell: bash
