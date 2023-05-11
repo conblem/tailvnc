@@ -19,8 +19,8 @@ jobs:
       - uses: actions/cache@v3
         id: tailscale-go-cache
         with:
-          path: ~/.cache/tailscale-go 
-          key: ${{ runner.os }}-tailscale-go-${{ hashFiles('tailscale/go.mod', 'tailscale/tool/yarn.rev', 'tailscale/tool/node.rev', 'tailscale/tool/binaryen.rev') }}
+          path: ~/.cache
+          key: ${{ runner.os }}-tailscale-go-2-${{ hashFiles('tailscale/go.mod', 'tailscale/tool/yarn.rev', 'tailscale/tool/node.rev', 'tailscale/tool/binaryen.rev') }}
       - name: Build tsconnect package
         run: |
           cd tailscale
