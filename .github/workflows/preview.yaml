@@ -43,7 +43,7 @@ jobs:
       - name: Deploy Project Artifacts to Vercel
         id: vercel-deploy
         run: |
-          yarn vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} > deployment-url.txt
+          yarn -s vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} > deployment-url.txt
           echo "deployment-url=$(cat deployment-url.txt)" >> ${GITHUB_OUTPUT}
       - name: Add deployment url to PR
         uses: actions/github-script@v6
