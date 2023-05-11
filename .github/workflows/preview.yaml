@@ -5,13 +5,13 @@ env:
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
 on:
-  push:
-    branches-ignore:
-      - main
+  pull_request:
 
 jobs:
   Deploy-Preview:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - uses: actions/checkout@v3
         with:
@@ -19,8 +19,8 @@ jobs:
       - uses: actions/cache@v3
         id: tailscale-go-cache
         with:
-          path: /root/.cache/tailscale-go 
-          key: ${{ runner.os }}-tailscale-go-${{ hashFiles('tailscale/go.mod') }}
+          path: ~/.cache
+          key: ${{ runner.os }}-tailscale-go-2-${{ hashFiles('tailscale/go.mod', 'tailscale/tool/yarn.rev', 'tailscale/tool/node.rev', 'tailscale/tool/binaryen.rev') }}
       - name: Build tsconnect package
         run: |
           cd tailscale
@@ -43,4 +43,12 @@ jobs:
       - name: Build Project Artifacts
         run: yarn vercel build --token=${{ secrets.VERCEL_TOKEN }}
       - name: Deploy Project Artifacts to Vercel
-        run: yarn vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+        id: vercel-deploy
+        run: |
+          yarn -s vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} > deployment-url.txt
+          echo "deployment-url=$(cat deployment-url.txt)" >> ${GITHUB_OUTPUT}
+      - name: Add deployment url to PR
+        uses: mshick/add-pr-comment@v2
+        with:
+          message: |
+            ${{ steps.vercel-deploy.outputs.deployment-url }}
