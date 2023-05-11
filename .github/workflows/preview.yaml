@@ -45,13 +45,3 @@ jobs:
         run: |
           yarn -s vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} > deployment-url.txt
           echo "deployment-url=$(cat deployment-url.txt)" >> ${GITHUB_OUTPUT}
-      - name: Add deployment url to PR
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '${{ steps.vercel-deploy.outputs.deployment-url }}'
-            })
