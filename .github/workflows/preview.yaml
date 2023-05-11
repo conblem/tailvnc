@@ -25,6 +25,7 @@ jobs:
         run: |
           cd tailscale
           ./tool/go run ./cmd/tsconnect build-pkg
+          chown -R $(id -u):$(id -g) /root/.cache/tailscale-go 
       - name: Get yarn cache directory
         id: yarn-cache-dir
         shell: bash
